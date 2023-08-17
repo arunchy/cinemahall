@@ -7,12 +7,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 public class MovieController {
     @Autowired
     private MovieRepository movieRepository;
+
+
 
     @CrossOrigin("http://localhost:3000/")
     @PostMapping("/addmovie")
@@ -33,6 +36,40 @@ public class MovieController {
          Iterable<Movies>allData=movieRepository.findAll();
          return ResponseEntity.ok(allData);
     }
+
+
+    @CrossOrigin("http://localhost:3000/")
+    @PostMapping("/insertSeats")
+    public ResponseEntity<Movies> insertSeats(@RequestParam("seats") String[] newSeats, @RequestParam("userId") String userId, @RequestParam("movieId") String movieId){
+        int movieID= Integer.parseInt(movieId);
+       Movies movies=movieRepository.findById(movieID).orElse(null);
+       String[] oldSeats=movies.getSeatList();
+       if(oldSeats!=null){
+           String[] combinedSeats=new String[oldSeats.length+ newSeats.length];
+           System.arraycopy(oldSeats,0,combinedSeats,0,oldSeats.length);
+           System.arraycopy(newSeats,0,combinedSeats,oldSeats.length,newSeats.length);
+           movies.setSeatList(combinedSeats);
+
+       }else{
+           movies.setSeatList(newSeats);
+       }
+
+       Movies data= movieRepository.save(movies);
+      return ResponseEntity.ok(data);
+
+
+    }
+
+    @CrossOrigin("http://localhost:3000/")
+    @GetMapping("/getMovieData/{id}")
+        public ResponseEntity<Object> getMovieData(@PathVariable String id){
+        int movieId=Integer.parseInt(id);
+            Movies data= movieRepository.findById(movieId).orElse(null);
+            return ResponseEntity.ok(data);
+        }
+
+
+
 
 
 }
